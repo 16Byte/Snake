@@ -1,0 +1,7 @@
+# Compiled binaries
+snake
+snake.exe
+snake.out
+
+# VS Code
+*.vscode
