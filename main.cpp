@@ -12,7 +12,7 @@ Color backgroundColor = Color{ 40, 40, 40, 255};
 // 25 * 30 = 750; thus 750x750 grid
 int cellSize = 30;
 int cellCount = 25;
-int offset = 75; //border size
+int borderSize = 75; //border size
 
 Music easyAndNormalModeMusic;
 
@@ -21,10 +21,8 @@ double lastUpdateTime = 0;
 bool ElementInDeque(Vector2 element, deque<Vector2> deque)
 {
     for (unsigned int i = 0; i < deque.size(); i++)
-    {
         if(Vector2Equals(deque[i], element))
             return true;
-    }
     return false;
 }
 
@@ -53,7 +51,7 @@ class Snake
             {
                 float x = body[i].x;
                 float y = body[i].y;
-                Rectangle segment = Rectangle{(offset + x * cellSize), (offset + y * cellSize), (float)cellSize, (float)cellSize};
+                Rectangle segment = Rectangle{(borderSize + x * cellSize), (borderSize + y * cellSize), (float)cellSize, (float)cellSize};
                 DrawRectangleRounded(segment, 0.5, 6, snakeColor);
             }
         }
@@ -61,14 +59,11 @@ class Snake
         void Update()
         {
             body.push_front(Vector2Add(body[0], direction));
+            
             if(addSegment == true)
-            {
                 addSegment = false;
-            }
             else
-            {
                 body.pop_back();
-            }
         }
 
         void Reset() //randomize this later
@@ -101,7 +96,7 @@ class Food
 
         void Draw()
         {
-            DrawTexture(texture, offset + position.x * cellSize, offset + position.y * cellSize, WHITE);
+            DrawTexture(texture, borderSize + position.x * cellSize, borderSize + position.y * cellSize, WHITE);
         }
 
         Vector2 GenerateRandomCell()
@@ -114,13 +109,11 @@ class Food
 
         Vector2 GenerateRandomPos(deque<Vector2> snakeBody)
         {
-            
             Vector2 position = GenerateRandomCell();
 
             while(ElementInDeque(position, snakeBody))
-            {
                 position = GenerateRandomCell();
-            }
+
             return position;
         }
 };
@@ -148,7 +141,7 @@ class Game
 
             easyAndNormalModeMusic = LoadMusicStream("Sounds/Music/Breaking News by SAKUMAMATATA.mp3");
             PlayMusicStream(easyAndNormalModeMusic);
-            SetMusicVolume(easyAndNormalModeMusic, .5f);
+            SetMusicVolume(easyAndNormalModeMusic, .25f);
         }
 
         ~Game()
@@ -188,25 +181,17 @@ class Game
 
         void CheckCollisionWithEdges()
         {
-            if(snake.body[0].x == cellCount || snake.body[0].x == -1)
-            {
-                //snake has hit left or right edge of the grid
+            if((snake.body[0].x == cellCount || snake.body[0].x == -1) || snake.body[0].y == cellCount || snake.body[0].y == -1)
                 GameOver();
-            }
-            if(snake.body[0].y == cellCount || snake.body[0].y == -1)
-            {
-                GameOver();
-            }
         }
 
         void CheckCollisionWithTail()
         {
             deque<Vector2> headlessBody = snake.body; //when we rewrite this, make the body body and the head head. Instead of body[0] for head or having to write variables like headlessBody
             headlessBody.pop_front();
+
             if(ElementInDeque(snake.body[0], headlessBody))
-            {
                 GameOver();
-            }
         }
 
         void GameOver()
@@ -219,71 +204,82 @@ class Game
         }
 };
 
+Game Init()
+{
+    InitWindow(2 * borderSize + cellSize * cellCount, 2 * borderSize + cellSize * cellCount, "Snake");
+    SetTargetFPS(165);
+    Game game = Game();
+    return game;
+}
+
 void GetInput(Game& game)
 {
-    //I guess for now the input is cumulative based on all the inputs. 
-    //Let's see how this ages
+    int key = GetKeyPressed();
 
-    //Input
-    if((IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) && game.snake.direction.y != 1)
+    switch(IsKeyPressed(key))
     {
-        //up
-        game.running = true;
-        game.snake.direction = {0, -1};
-    }
-    if((IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) && game.snake.direction.y != -1)
-    {
-        //down
-        game.running = true;
-        game.snake.direction = {0, 1};
-    }
-    if((IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) && game.snake.direction.x != 1)
-    {
-        //left
-        game.running = true;
-        game.snake.direction = {-1, 0};
-    }
-    if((IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) && game.snake.direction.x != -1)
-    {
-        //right
-        game.running = true;
-        game.snake.direction = {1, 0};
+        case KEY_UP:
+        case KEY_W:
+            //up
+            game.running = true;
+            game.snake.direction = {0, -1};
+            break;
+        case KEY_DOWN:
+        case KEY_S:
+            //down
+            game.running = true;
+            game.snake.direction = {0, 1};
+            break;
+        case KEY_LEFT: 
+        case KEY_A:
+            //left
+            game.running = true;
+            game.snake.direction = {-1, 0};
+            break;
+        case KEY_RIGHT:
+        case KEY_D:
+            //right
+            game.running = true;
+            game.snake.direction = {1, 0};
+            break;
     }
 }
 
-int main(void) 
+void DrawWindow(Game& game)
 {
-    InitWindow(2*offset + cellSize * cellCount, 2*offset + cellSize * cellCount, "Snake");
-    SetTargetFPS(60);
+    BeginDrawing();
+    ClearBackground(backgroundColor);
 
-    Game game = Game();
+    DrawRectangleLinesEx(Rectangle{(float)borderSize - 5, (float)borderSize - 5, (float)cellSize*cellCount+10, (float)cellSize*cellCount+10}, 5, snakeColor);
+    
+    DrawText("Snake Clone by Navi", borderSize - 5, 20, 40, snakeColor);
+    DrawText(TextFormat("Score: %i", game.score), borderSize - 5, borderSize + cellSize * cellCount + 10, 40, snakeColor);
+}
+
+void Update(Game& game)
+{
+    DrawWindow(game);
+
+    if(game.running)
+        UpdateMusicStream(easyAndNormalModeMusic);
+
+    if(eventTriggered(0.2))
+        game.Update();
+
+    GetInput(game);
+
+    game.Draw();
+    EndDrawing();
+}
+
+int main() 
+{
+    Game game = Init();
 
     while(WindowShouldClose() == false) 
-    {
-        BeginDrawing();
-        ClearBackground(backgroundColor);
-        DrawRectangleLinesEx(Rectangle{(float)offset-5, (float)offset-5, (float)cellSize*cellCount+10, (float)cellSize*cellCount+10}, 5, snakeColor);
-        DrawText("Snake Clone by Navi", offset - 5, 20, 40, snakeColor);
-        DrawText(TextFormat("Score: %i", game.score), offset - 5, offset + cellSize * cellCount + 10, 40, snakeColor);
+        Update(game);
 
-        if(game.running)
-        {
-            UpdateMusicStream(easyAndNormalModeMusic);
-        }
-
-        
-
-        if(eventTriggered(0.2))
-        {
-            game.Update();
-        }
-
-        GetInput(game);
-
-        game.Draw();
-
-        EndDrawing();
-    }
+    CloseWindow();
 
     return 0;
 }
