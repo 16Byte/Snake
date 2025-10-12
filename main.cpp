@@ -214,34 +214,29 @@ Game Init()
 
 void GetInput(Game& game)
 {
-    int key = GetKeyPressed();
-
-    switch(key)
+    if((IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) && game.snake.direction.y != 1)
     {
-        case KEY_UP:
-        case KEY_W:
-            //up
-            game.running = true;
-            game.snake.direction = {0, -1};
-            break;
-        case KEY_DOWN:
-        case KEY_S:
-            //down
-            game.running = true;
-            game.snake.direction = {0, 1};
-            break;
-        case KEY_LEFT: 
-        case KEY_A:
-            //left
-            game.running = true;
-            game.snake.direction = {-1, 0};
-            break;
-        case KEY_RIGHT:
-        case KEY_D:
-            //right
-            game.running = true;
-            game.snake.direction = {1, 0};
-            break;
+        //up
+        game.running = true;
+        game.snake.direction = {0, -1};
+    }
+    else if((IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) && game.snake.direction.y != -1)
+    {
+        //down
+        game.running = true;
+        game.snake.direction = {0, 1};
+    }
+    else if((IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) && game.snake.direction.x != 1)
+    {
+        //left
+        game.running = true;
+        game.snake.direction = {-1, 0};
+    }
+    else if((IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) && game.snake.direction.x != -1)
+    {
+        //right
+        game.running = true;
+        game.snake.direction = {1, 0};
     }
 }
 
