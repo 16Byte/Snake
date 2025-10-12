@@ -59,7 +59,7 @@ class Snake
         void Update()
         {
             body.push_front(Vector2Add(body[0], direction));
-            
+
             if(addSegment == true)
                 addSegment = false;
             else
@@ -216,7 +216,7 @@ void GetInput(Game& game)
 {
     int key = GetKeyPressed();
 
-    switch(IsKeyPressed(key))
+    switch(key)
     {
         case KEY_UP:
         case KEY_W:
