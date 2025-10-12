@@ -1,6 +1,6 @@
 # === Project settings ===
 APP = snake
-SRC = main.cpp
+SRC = main.cpp Game.cpp Snake.cpp Food.cpp
 
 # === Compiler settings ===
 CC = clang++
