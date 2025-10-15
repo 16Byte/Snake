@@ -5,3 +5,6 @@ snake.out
 
 # VS Code
 *.vscode
+
+# OS Specific Files
+*.DS_Store
