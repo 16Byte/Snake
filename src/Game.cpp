@@ -1,20 +1,25 @@
-#include "Food.hpp"
-#include "Snake.hpp"
+#include "Game.hpp"
 #include "Global.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include "Game.hpp"
 #include <deque>
 
 using namespace std;
 
-Game::Game()
+Game::Game() 
+    : snake(),
+      food(snake.body, cellCount),
+      score(0),
+      running(true)
 {
     InitAudioDevice();
-
-    Global::easyAndNormalModeMusic = LoadMusicStream("Sounds/Music/Breaking News by SAKUMAMATATA.mp3");
+    
+    Global::easyAndNormalModeMusic = LoadMusicStream("Assets/Sounds/Music/Breaking News by SAKUMAMATATA.mp3");
     PlayMusicStream(Global::easyAndNormalModeMusic);
-    SetMusicVolume(Global::easyAndNormalModeMusic, .25f);
+    SetMusicVolume(Global::easyAndNormalModeMusic, 0.25f);
+    
+    consumptionSound = LoadSound("Assets/Sounds/SFX/Consumption 1.wav");
+    deathSound = LoadSound("Assets/Sounds/SFX/Death (from Galaga).wav");
 }
 
 Game::~Game()
@@ -24,15 +29,15 @@ Game::~Game()
     CloseAudioDevice();
 }
 
-void Game::Draw()
+void Game::Draw() const
 {
-    food.Draw();
-    snake.Draw();
+    food.Draw(cellSize, borderSize);
+    snake.Draw(cellSize, borderSize, Global::snakeColor);
 }
 
 void Game::Update()
 {
-    if(running)
+    if (running)
     {
         snake.Update();
         CheckCollisionWithFood();
@@ -43,7 +48,7 @@ void Game::Update()
 
 void Game::CheckCollisionWithFood()
 {
-    if(Vector2Equals(snake.body[0], food.position))
+    if (Vector2Equals(snake.body[0], food.position))
     {
         food.position = food.GenerateRandomPos(snake.body);
         snake.addSegment = true;
@@ -54,22 +59,27 @@ void Game::CheckCollisionWithFood()
 
 void Game::CheckCollisionWithEdges()
 {
-    if((snake.body[0].x == cellCount || snake.body[0].x == -1) || snake.body[0].y == cellCount || snake.body[0].y == -1)
+    if (snake.body[0].x == cellCount || snake.body[0].x == -1 || 
+        snake.body[0].y == cellCount || snake.body[0].y == -1)
+    {
         GameOver();
+    }
 }
 
 void Game::CheckCollisionWithTail()
 {
-    deque<Vector2> headlessBody = snake.body; //when we rewrite this, make the body body and the head head. Instead of body[0] for head or having to write variables like headlessBody
+    deque<Vector2> headlessBody = snake.body;
     headlessBody.pop_front();
-
-    if(Global::ElementInDeque(snake.body[0], headlessBody))
+    
+    if (Global::ElementInDeque(snake.body[0], headlessBody))
+    {
         GameOver();
+    }
 }
 
 void Game::GameOver()
 {
-    snake.Reset();
+    snake.Reset(Global::easyAndNormalModeMusic);
     food.position = food.GenerateRandomPos(snake.body);
     running = false;
     score = 0;
