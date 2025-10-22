@@ -2,9 +2,32 @@
 snake
 snake.exe
 snake.out
+*.o
+*.obj
 
 # VS Code
-*.vscode
+.vscode/
+*.code-workspace
 
-# OS Specific Files
-*.DS_Store
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Build artifacts
+*.a
+*.so
+*.dylib
+*.dll
+
+# Debugging
+*.dSYM/
+core
+vgcore.*
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
