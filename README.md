@@ -2,9 +2,10 @@
 
 A classic Snake game implementation using C++ and Raylib.
 
-<img width="778" height="803" alt="Snake gameplay screenshot" src="https://github.com/user-attachments/assets/553a4fc7-498a-43b0-9049-66937634d7d4" />
+![Screencast_20251022_173230-ezgif com-video-to-gif-converter(1)](https://github.com/user-attachments/assets/4098c06a-b561-4a48-9d7a-64c1b195cf7a)
 
 ## Features
+
 
 - Classic Snake gameplay mechanics
 - Smooth movement and collision detection
